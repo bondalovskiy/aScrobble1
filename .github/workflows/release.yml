@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -13,15 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            target: x86_64-unknown-linux-gnu
-            rust_targets: x86_64-unknown-linux-gnu
-            label: linux
+          # - os: ubuntu-22.04
+          #target: x86_64-unknown-linux-gnu
+          #rust_targets: x86_64-unknown-linux-gnu
+          #  label: linux
 
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            rust_targets: x86_64-pc-windows-msvc
-            label: windows
+          #- os: windows-latest
+          #  target: x86_64-pc-windows-msvc
+          #  rust_targets: x86_64-pc-windows-msvc
+          #  label: windows
 
           - os: macos-latest
             target: universal-apple-darwin
