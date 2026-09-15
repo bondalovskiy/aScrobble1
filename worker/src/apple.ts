@@ -68,6 +68,39 @@ function normalizeAlbumName(rawAlbum: string): string {
   return rawAlbum.replace(/ - (EP|Single)$/i, "").trim();
 }
 
+const ARTIST_SPLIT_EXCEPTIONS = new Set([
+  "florence & the machine",
+  "chase & status",
+  "earth, wind & fire",
+  "simon & garfunkel",
+  "hall & oates",
+  "kool & the gang",
+  "sam & dave",
+  "ashford & simpson",
+  "captain & tennille",
+  "ike & tina turner",
+]);
+
+const ARTIST_SPLIT_RE = /\s*(?:,|&)\s*/;
+
+function normalizeArtistName(rawArtist: string): string {
+  if (!rawArtist) return rawArtist ?? "";
+
+  const trimmed = rawArtist.trim();
+  if (ARTIST_SPLIT_EXCEPTIONS.has(trimmed.toLowerCase())) return trimmed;
+
+  const parts = trimmed
+    .split(ARTIST_SPLIT_RE)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const primary = parts[0] || trimmed;
+  if (primary !== trimmed) {
+    console.log(`normalizeArtistName: "${trimmed}" -> "${primary}"`);
+  }
+  return primary;
+}
+
 /**
  * Probe the play count for a single track by ISRC via the library songs endpoint.
  */
@@ -107,7 +140,7 @@ export async function fetchRecentlyPlayed(
   };
 
   for (let offset = 0; offset <= MAX_OFFSET; offset += PAGE_SIZE) {
-    const url = `${API_BASE}/me/recent/played/tracks?limit=${PAGE_SIZE}&offset=${offset}`;
+    const url = `${API_BASE}/me/recent/played/tracks?limit=${PAGE_SIZE}&offset=${offset}&types=songs,library-songs`;
 
     let response: Response;
     try {
@@ -137,8 +170,8 @@ export async function fetchRecentlyPlayed(
       const rawAlbum = attrs.albumName ?? "";
       tracks.push({
         id: item.id,
-        name: attrs.name ?? "",
-        artist: attrs.artistName ?? "",
+        name: (attrs.name ?? "").trim(),
+        artist: normalizeArtistName(attrs.artistName ?? ""),
         album_artist: attrs.albumArtistName ?? attrs.artistName ?? "",
         album: normalizeAlbumName(rawAlbum),
         duration_ms: attrs.durationInMillis ?? 180_000,

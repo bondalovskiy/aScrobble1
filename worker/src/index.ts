@@ -42,7 +42,7 @@ export default {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, x-ascrobble-auth",
+      "Access-Control-Allow-Headers": "Content-Type, x-ascrobble-auth, Cache-Control",
     };
 
     // Handle preflight requests
